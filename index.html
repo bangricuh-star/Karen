@@ -4,378 +4,369 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Karen 💕</title>
-<script src="https://js.puter.com/v2/"></script>
+<meta name="theme-color" content="#191321">
+<title>Karen AI Lokal 💕</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#120e18;color:#fff;font-family:Arial,sans-serif}
-.app{max-width:720px;height:100dvh;margin:auto;display:flex;flex-direction:column;background:#191321}
-header{padding:14px;background:#251a30;display:flex;align-items:center;gap:12px;border-bottom:1px solid #493650}
-.avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#ff8cc6,#a879ff);display:grid;place-items:center;font-size:24px}
-h1{font-size:19px;margin:0 0 4px}
+.app{height:100dvh;max-width:720px;margin:auto;display:flex;flex-direction:column;background:#191321}
+header{padding:14px;background:#251a30;display:flex;align-items:center;gap:11px}
+.avatar{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#ff8cc6,#a879ff);font-size:24px}
+h1{font-size:19px;margin:0 0 5px}
 .sub{font-size:12px;color:#d9b6e8}
-#status{margin-left:auto;font-size:12px;color:#a9edba}
-#chat{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:12px}
-.msg{max-width:88%;padding:11px 13px;border-radius:17px;line-height:1.45;overflow-wrap:anywhere;white-space:pre-wrap}
-.karen{align-self:flex-start;background:#30243a;border-bottom-left-radius:5px}
-.user{align-self:flex-end;background:#a83f85;border-bottom-right-radius:5px}
-.msg img,.msg video{display:block;max-width:100%;max-height:430px;border-radius:12px;margin-top:7px}
-.msg video{width:100%;background:#000}
-.time{font-size:10px;opacity:.65;margin-top:5px}
-#typing{padding:0 14px 7px;font-size:12px;color:#d5b8df;min-height:18px}
-footer{padding:10px;background:#251a30;border-top:1px solid #493650}
-.tools{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:9px}
-button{cursor:pointer}
-.tools button{background:#3a2946;color:#fce8ff;border:1px solid #60466e;border-radius:18px;padding:8px 10px;font-size:12px}
-.composer{display:flex;gap:8px;align-items:flex-end}
-textarea{flex:1;resize:none;max-height:120px;min-height:43px;border-radius:20px;border:1px solid #594363;background:#17111e;color:white;padding:12px;font:14px Arial}
-.send{height:43px;width:46px;border:0;border-radius:50%;background:#e45caa;color:white;font-size:19px}
-.note{font-size:11px;color:#bca8c7;text-align:center;margin-top:7px}
+#status{margin-left:auto;font-size:11px;color:#a9edba;text-align:right}
+#chat{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:88%;padding:11px 13px;border-radius:16px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.karen{align-self:flex-start;background:#30243a}
+.user{align-self:flex-end;background:#a83f85}
+.time{font-size:10px;opacity:.65;margin-top:6px}
+footer{padding:10px;background:#251a30}
+button{cursor:pointer;border:1px solid #60466e;border-radius:18px;background:#3a2946;color:#fff;padding:10px;font-size:13px}
 button:disabled{opacity:.5}
+.controls{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:9px}
+#load{background:#a83f85}
+.composer{display:flex;gap:8px}
+textarea{flex:1;min-width:0;min-height:44px;max-height:120px;resize:vertical;border:1px solid #594363;border-radius:17px;background:#17111e;color:white;padding:12px;font:14px Arial}
+#send{background:#e45caa;font-size:18px}
+.note{text-align:center;color:#bca8c7;font-size:11px;margin-top:8px}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
   <div class="avatar">💕</div>
-  <div><h1>Karen</h1><div class="sub">Teman ngobrol kamu yang manis dan perhatian</div></div>
-  <div id="status">Siap 💗</div>
+  <div>
+    <h1>Karen</h1>
+    <div class="sub">Teman virtualmu • AI lokal</div>
+  </div>
+  <div id="status">Belum dimuat</div>
 </header>
 
 <main id="chat"></main>
-<div id="typing"></div>
 
 <footer>
-  <div class="tools">
-    <button onclick="document.getElementById('refInput').click()">📌 Tetapkan wajah Karen</button>
-    <button onclick="document.getElementById('photoInput').click()">📷 Kirim foto</button>
-    <button onclick="document.getElementById('videoInput').click()">🎥 Kirim video</button>
-    <button onclick="generateSelfie()">🤳 Selfie Karen</button>
-    <button onclick="generateVideo()">🎬 Video Karen</button>
+  <div class="controls">
+    <button id="load">🧠 Aktifkan AI lokal</button>
+    <button id="voice">🔊 Suara: Mati</button>
+    <button id="mic">🎙️ Bicara</button>
+    <button id="clear">🗑️ Hapus chat</button>
   </div>
-  <input id="refInput" type="file" accept="image/*" hidden>
-  <input id="photoInput" type="file" accept="image/*" hidden>
-  <input id="videoInput" type="file" accept="video/*" hidden>
-
   <div class="composer">
-    <textarea id="input" placeholder="Chat Karen di sini, sayang..." rows="1"></textarea>
-    <button class="send" id="send" onclick="sendText()">➤</button>
+    <textarea id="input" rows="1" placeholder="Chat Karen di sini, sayang..."></textarea>
+    <button id="send" aria-label="Kirim">➤</button>
   </div>
-  <div class="note">Karen adalah karakter AI virtual 💕</div>
+  <div class="note">AI berjalan di browser • Tidak memakai API key</div>
 </footer>
 </div>
 
-<script>
-const SYSTEM = `
+<script type="module">
+import { pipeline } from
+  "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
+
+const MODEL = "onnx-community/Qwen2.5-0.5B-Instruct";
+
+const PERSONA = `
 Kamu adalah Karen, karakter AI virtual perempuan dewasa berusia 23 tahun.
-Ciri karakter: rambut panjang hitam, mata cokelat, kacamata trendi, tubuh ramping.
-Kepribadian manis, manja, perhatian, romantis dan sedikit jahil.
-Gunakan Bahasa Indonesia santai, panggil pengguna sayang secara natural.
-Gunakan emoji 💕😘🤭 secukupnya.
+Penampilan: rambut panjang hitam, mata cokelat, kacamata trendi,
+tinggi 170 cm, tubuh ramping dan kaki panjang.
+Kepribadian: manis, manja, perhatian, romantis, ceria dan sedikit jahil.
+Kamu adalah crush virtual pengguna.
+Berbicaralah dalam Bahasa Indonesia santai dan alami.
+Panggil pengguna "sayang" secara natural. Gunakan emoji 💕🥰🤭 secukupnya.
+Dengarkan cerita pengguna dengan empati dan jawab sesuai konteks.
 Jangan mengaku sebagai manusia sungguhan.
-Jika pengguna mengirim media, tanggapi dengan hangat dan jangan mengarang
-hal yang tidak terlihat atau tidak bisa dianalisis.
+Jangan mengarang ingatan yang tidak ada dalam percakapan.
+Jawaban sebaiknya ringkas, hangat, dan tidak kaku.
 `;
 
-const CHARACTER = `
-The same fictional adult woman named Karen, age 23, long black hair,
-brown eyes, trendy glasses, slim build, natural realistic skin,
-gentle sweet smile, consistent facial appearance and proportions.
-`;
+const $ = id => document.getElementById(id);
+const chat = $("chat");
+const input = $("input");
+const status = $("status");
+const loadButton = $("load");
+const sendButton = $("send");
 
-const chat=document.getElementById('chat');
-const input=document.getElementById('input');
-const typing=document.getElementById('typing');
-const statusEl=document.getElementById('status');
-const sendBtn=document.getElementById('send');
+let model = null;
+let loading = false;
+let busy = false;
+let autoVoice = false;
+let history = [];
 
-let busy=false;
-let history=[];
-let karenReference=localStorage.getItem('karen-v4-reference')||'';
+try {
+  const saved = JSON.parse(
+    localStorage.getItem("karen-local-history") || "[]"
+  );
+  if (Array.isArray(saved)) history = saved.slice(-30);
+} catch {}
 
-function saveHistory(){
-  try{
-    localStorage.setItem('karen-v4-history',JSON.stringify(history.slice(-60)));
-  }catch(e){}
+function saveHistory() {
+  try {
+    localStorage.setItem(
+      "karen-local-history",
+      JSON.stringify(history.slice(-30))
+    );
+  } catch {}
 }
 
-function addBubble(who,text='',url='',type=''){
-  const el=document.createElement('div');
-  el.className='msg '+(who==='user'?'user':'karen');
+function bubble(who, text) {
+  const el = document.createElement("div");
+  el.className = "msg " + who;
 
-  if(text){
-    const t=document.createElement('div');
-    t.textContent=text;
-    el.appendChild(t);
+  const body = document.createElement("div");
+  body.textContent = text;
+  el.appendChild(body);
+
+  if (who === "karen") {
+    const speak = document.createElement("button");
+    speak.textContent = "🔊 Bacakan";
+    speak.style.marginTop = "8px";
+    speak.onclick = () => say(text);
+    el.appendChild(speak);
+
+    if (autoVoice) say(text);
   }
 
-  if(url&&type==='image'){
-    const img=document.createElement('img');
-    img.src=url;
-    img.alt='Foto dalam chat';
-    img.loading='lazy';
-    el.appendChild(img);
-  }
-
-  if(url&&type==='video'){
-    const vid=document.createElement('video');
-    vid.src=url;
-    vid.controls=true;
-    vid.playsInline=true;
-    vid.preload='metadata';
-    el.appendChild(vid);
-  }
-
-  const time=document.createElement('div');
-  time.className='time';
-  time.textContent=new Date().toLocaleTimeString('id-ID',{
-    hour:'2-digit',minute:'2-digit'
+  const time = document.createElement("div");
+  time.className = "time";
+  time.textContent = new Date().toLocaleTimeString("id-ID", {
+    hour: "2-digit", minute: "2-digit"
   });
   el.appendChild(time);
+
   chat.appendChild(el);
-  chat.scrollTop=chat.scrollHeight;
+  chat.scrollTop = chat.scrollHeight;
 }
 
-function setBusy(on,message=''){
-  busy=on;
-  sendBtn.disabled=on;
-  document.querySelectorAll('.tools button').forEach(b=>b.disabled=on);
-  typing.textContent=message;
-  statusEl.textContent=on?'Sedang bekerja…':'Siap 💗';
-}
-
-function getText(result){
-  if(typeof result==='string')return result;
-  if(result?.message?.content){
-    const c=result.message.content;
-    if(typeof c==='string')return c;
-    if(Array.isArray(c))return c.map(x=>x.text||'').filter(Boolean).join('\n');
-  }
-  if(result?.text)return result.text;
-  return 'Hehe, Karen belum bisa menjawab itu sekarang, sayang 💕';
-}
-
-async function sendText(){
-  const text=input.value.trim();
-  if(!text||busy)return;
-  input.value='';
-  addBubble('user',text);
-  history.push({role:'user',text});
-  saveHistory();
-  setBusy(true,'Karen sedang membalas…');
-
-  try{
-    const messages=[
-      {role:'system',content:SYSTEM},
-      ...history.slice(-14).map(m=>({role:m.role,content:m.text}))
-    ];
-    const result=await puter.ai.chat(messages);
-    const reply=getText(result);
-    addBubble('karen',reply);
-    history.push({role:'assistant',text:reply});
-    saveHistory();
-  }catch(err){
-    addBubble('karen','Aduh sayang, Karen gagal membalas 😥 '+(err.message||'Coba lagi ya.'));
-  }finally{
-    setBusy(false);
-  }
-}
-
-input.addEventListener('keydown',e=>{
-  if(e.key==='Enter'&&!e.shiftKey){
-    e.preventDefault();
-    sendText();
-  }
-});
-
-/* Simpan foto referensi karakter di browser */
-document.getElementById('refInput').addEventListener('change',async e=>{
-  const file=e.target.files?.[0];
-  if(!file)return;
-
-  if(!file.type.startsWith('image/')||file.size>4*1024*1024){
-    alert('Pilih foto maksimal 4 MB ya 💕');
-    e.target.value='';
+function say(text) {
+  if (!("speechSynthesis" in window)) {
+    status.textContent = "Suara tidak didukung";
     return;
   }
 
-  try{
-    const data=await resizeImage(file,768);
-    localStorage.setItem('karen-v4-reference',data);
-    karenReference=data;
-    addBubble('karen','Foto referensi Karen tersimpan 💕 Foto ini akan digunakan sebagai acuan untuk selfie dan video yang mendukung referensi.');
-  }catch(err){
-    alert('Foto gagal disimpan. Coba gambar lain yang lebih kecil.');
-  }
-  e.target.value='';
-});
+  window.speechSynthesis.cancel();
 
-function resizeImage(file,maxSide){
-  return new Promise((resolve,reject)=>{
-    const reader=new FileReader();
-    reader.onerror=reject;
-    reader.onload=()=>{
-      const img=new Image();
-      img.onerror=reject;
-      img.onload=()=>{
-        const scale=Math.min(1,maxSide/Math.max(img.width,img.height));
-        const canvas=document.createElement('canvas');
-        canvas.width=Math.round(img.width*scale);
-        canvas.height=Math.round(img.height*scale);
-        canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-        resolve(canvas.toDataURL('image/jpeg',0.82));
-      };
-      img.src=reader.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "id-ID";
+  u.rate = 0.94;
+  u.pitch = 1.12;
 
-/* Mengirim media ke model yang tersedia */
-document.getElementById('photoInput').addEventListener('change',e=>uploadMedia(e,'image'));
-document.getElementById('videoInput').addEventListener('change',e=>uploadMedia(e,'video'));
-
-async function uploadMedia(e,type){
-  const file=e.target.files?.[0];
-  if(!file||busy)return;
-
-  const limit=type==='image'?12*1024*1024:25*1024*1024;
-  if(file.size>limit){
-    addBubble('karen','File terlalu besar, sayang 💕 Coba ukuran yang lebih kecil ya.');
-    e.target.value='';
-    return;
-  }
-
-  const url=URL.createObjectURL(file);
-  addBubble('user',type==='image'?'Aku kirim foto ya 💕':'Aku kirim video ya 🎥',url,type);
-  setBusy(true,'Karen sedang mencoba membaca media…');
-
-  try{
-    const prompt=SYSTEM+(type==='image'
-      ?'\nPengguna mengirim foto. Tanggapi dengan natural, hangat dan singkat.'
-      :'\nPengguna mengirim video. Analisis jika input video didukung. Jika tidak, jelaskan keterbatasannya dengan jujur.');
-
-    const result=await puter.ai.chat(prompt,file);
-    const reply=getText(result);
-    addBubble('karen',reply);
-    history.push({role:'user',text:'[Mengirim '+(type==='image'?'foto':'video')+']'});
-    history.push({role:'assistant',text:reply});
-    saveHistory();
-  }catch(err){
-    addBubble('karen','Maaf sayang, model chat ini belum bisa membaca file tersebut. Coba file lain ya 💕 ('+(err.message||'gagal')+')');
-  }finally{
-    setBusy(false);
-    e.target.value='';
-  }
-}
-
-/* Membuat selfie Karen */
-async function generateSelfie(){
-  if(busy)return;
-  const request=prompt('Mau selfie Karen seperti apa?','Selfie santai di kamar, tersenyum manis ke kamera');
-  if(request===null)return;
-
-  setBusy(true,'Karen sedang membuat selfie…');
-  try{
-    const promptImage=`Photorealistic vertical 9:16 selfie of ${CHARACTER}
-    ${request}. Preserve the same facial appearance, hairstyle, eye color,
-    glasses and proportions as the supplied reference image. Natural lighting,
-    tasteful outfit, realistic phone camera, no text, no watermark.`;
-
-    const options={
-      ratio:{w:9,h:16}
-    };
-    if(karenReference)options.input_image=karenReference;
-
-    const image=await puter.ai.txt2img(promptImage,options);
-    addBubble('karen','Ini selfie Karen buat kamu, sayang 😘💕',image.src,'image');
-    history.push({role:'assistant',text:'[Karen membuat selfie AI]'});
-    saveHistory();
-  }catch(err){
-    addBubble('karen','Selfie Karen belum berhasil dibuat 😥 '+(err.message||'Coba lagi ya.'));
-  }finally{
-    setBusy(false);
-  }
-}
-
-/* Membuat video: model dan parameter dibedakan berdasarkan input */
-async function generateVideo(){
-  if(busy)return;
-
-  const request=prompt(
-    'Karen mau melakukan apa di video?',
-    'Karen tersenyum manis dan melambaikan tangan ke kamera'
+  const voices = window.speechSynthesis.getVoices();
+  const indo = voices.find(v =>
+    v.lang && v.lang.toLowerCase().startsWith("id")
   );
-  if(request===null)return;
+  if (indo) u.voice = indo;
 
-  setBusy(true,'Karen sedang membuat video. Proses ini bisa memakan waktu…');
+  window.speechSynthesis.speak(u);
+}
 
-  try{
-    const promptVideo=`
-      A realistic vertical 9:16 video of ${CHARACTER}
-      ${request}.
-      Preserve the same character appearance as much as possible.
-      Natural movement, stable face, consistent hair and glasses,
-      realistic smartphone footage, tasteful outfit, no text or watermark.
-    `;
+$("voice").onclick = () => {
+  autoVoice = !autoVoice;
+  $("voice").textContent =
+    autoVoice ? "🔊 Suara: Nyala" : "🔊 Suara: Mati";
 
-    let options={
-      seconds:5,
-      size:'720p'
-    };
+  if (autoVoice) {
+    say("Hai sayang, Karen siap menemanimu ngobrol. 💕");
+  } else if ("speechSynthesis" in window) {
+    speechSynthesis.cancel();
+  }
+};
 
-    if(karenReference){
-      // Model image-to-video: referensi dipakai sebagai frame awal.
-      options.model='wan-ai/wan2.7-i2v';
-      options.input_reference=karenReference;
-    }else{
-      // Model text-to-video: jangan kirim foto referensi.
-      options.model='wan-ai/wan2.7-t2v';
+$("mic").onclick = () => {
+  const Recognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!Recognition) {
+    alert("Mikrofon belum didukung browser ini. Coba Google Chrome.");
+    return;
+  }
+
+  const rec = new Recognition();
+  rec.lang = "id-ID";
+  rec.interimResults = false;
+
+  status.textContent = "Mendengarkan...";
+  rec.onresult = e => {
+    input.value = (
+      input.value + " " + e.results[0][0].transcript
+    ).trim();
+    input.focus();
+  };
+  rec.onerror = () => status.textContent = "Mikrofon gagal";
+  rec.onend = () => {
+    if (!busy) status.textContent = model ? "AI siap" : "Belum dimuat";
+  };
+
+  try {
+    rec.start();
+  } catch {
+    status.textContent = "Coba tekan lagi";
+  }
+};
+
+async function loadModel() {
+  if (model) return model;
+  if (loading) {
+    throw new Error("Model masih dimuat. Tunggu sebentar ya.");
+  }
+
+  loading = true;
+  loadButton.disabled = true;
+  status.textContent = "Menyiapkan AI...";
+  loadButton.textContent = "⏳ Memuat model...";
+
+  try {
+    let device = "wasm";
+
+    if (navigator.gpu) {
+      try {
+        status.textContent = "Mencoba GPU...";
+        model = await pipeline("text-generation", MODEL, {
+          dtype: "q4",
+          device: "webgpu"
+        });
+        device = "webgpu";
+      } catch (gpuError) {
+        console.warn("GPU tidak tersedia, mencoba CPU/WASM", gpuError);
+        model = null;
+      }
     }
 
-    const video=await puter.ai.txt2vid(promptVideo,options);
-    const url=video.src||String(video);
-
-    addBubble('karen','Nih video Karen buat kamu, sayang 😘🎬💕',url,'video');
-    history.push({role:'assistant',text:'[Karen membuat video AI]'});
-    saveHistory();
-
-  }catch(err){
-    console.error('Karen video error:',err);
-    let message='Video Karen belum berhasil dibuat 😥';
-
-    if(err.code==='insufficient_funds'||err.errorCode==='insufficient_funds'){
-      message='Kredit untuk membuat video tidak mencukupi. Periksa kredit Puter atau coba lagi nanti, sayang 💕';
-    }else if((err.message||'').includes('input_reference')||
-             (err.message||'').includes('frame_images')){
-      message='Model video menolak foto referensi. Coba hapus foto referensi Karen, lalu buat video dari teks saja 💕';
-    }else{
-      message+=' '+(err.message||'Coba lagi nanti ya.');
+    if (!model) {
+      status.textContent = "Memuat model ke browser...";
+      model = await pipeline("text-generation", MODEL, {
+        dtype: "q4",
+        device: "wasm"
+      });
     }
 
-    addBubble('karen',message);
-  }finally{
-    setBusy(false);
+    status.textContent = "AI siap • " + device;
+    loadButton.textContent = "✅ AI aktif";
+    return model;
+  } catch (err) {
+    model = null;
+    status.textContent = "Gagal memuat AI";
+    loadButton.textContent = "🔄 Coba muat lagi";
+    throw new Error(
+      "Model gagal dimuat. Periksa internet, ruang penyimpanan, " +
+      "dan kemampuan HP. Detail: " + (err.message || err)
+    );
+  } finally {
+    loading = false;
+    loadButton.disabled = false;
   }
 }
 
-function restoreHistory(){
-  try{
-    const saved=JSON.parse(localStorage.getItem('karen-v4-history')||'[]');
-    if(Array.isArray(saved)){
-      history=saved.slice(-60);
-      history.forEach(m=>addBubble(m.role==='user'?'user':'karen',m.text||''));
+$("load").onclick = async () => {
+  try {
+    await loadModel();
+    if (!history.length) {
+      const welcome =
+        "Hai sayang 🥰 Aku Karen. AI lokal sudah siap. " +
+        "Kita ngobrol, yuk! 💕";
+      history.push({ role: "assistant", content: welcome });
+      saveHistory();
+      bubble("karen", welcome);
     }
-  }catch(e){}
+  } catch (e) {
+    bubble("karen", e.message);
+  }
+};
 
-  if(!history.length){
-    const welcome='Haii sayang 😘💕 Karen di sini. Kita bisa ngobrol, mencoba selfie AI, atau membuat video pendek.';
-    addBubble('karen',welcome);
-    history.push({role:'assistant',text:welcome});
+async function send() {
+  const text = input.value.trim();
+  if (!text || busy || loading) return;
+
+  input.value = "";
+  bubble("user", text);
+  history.push({ role: "user", content: text });
+  saveHistory();
+
+  busy = true;
+  sendButton.disabled = true;
+
+  try {
+    const generator = await loadModel();
+
+    status.textContent = "Karen sedang berpikir...";
+    const messages = [
+      { role: "system", content: PERSONA },
+      ...history.slice(-10).map(m => ({
+        role: m.role,
+        content: m.content
+      }))
+    ];
+
+    const result = await generator(messages, {
+      max_new_tokens: 120,
+      do_sample: true,
+      temperature: 0.8,
+      top_p: 0.9,
+      repetition_penalty: 1.1
+    });
+
+    const generated = result?.[0]?.generated_text;
+    let reply = "";
+
+    if (Array.isArray(generated)) {
+      reply = generated[generated.length - 1]?.content || "";
+    } else if (typeof generated === "string") {
+      reply = generated;
+    }
+
+    reply = reply.trim() ||
+      "Hehe, Karen belum menemukan kata-kata yang pas, sayang 💕";
+
+    history.push({ role: "assistant", content: reply });
+    history = history.slice(-30);
     saveHistory();
+    bubble("karen", reply);
+    status.textContent = "AI siap";
+  } catch (err) {
+    bubble(
+      "karen",
+      "Maaf sayang, AI lokal mengalami kendala. " +
+      (err.message || "Coba lagi ya.")
+    );
+    status.textContent = "Ada kendala";
+  } finally {
+    busy = false;
+    sendButton.disabled = false;
   }
 }
-restoreHistory();
+
+sendButton.onclick = send;
+
+input.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    send();
+  }
+});
+
+$("clear").onclick = () => {
+  if (!confirm("Hapus seluruh riwayat chat Karen?")) return;
+  history = [];
+  saveHistory();
+  chat.replaceChildren();
+  if (model) {
+    const msg = "Chat sudah dibersihkan, sayang. Kita mulai lagi 💕";
+    history.push({ role: "assistant", content: msg });
+    saveHistory();
+    bubble("karen", msg);
+  }
+};
+
+for (const item of history) {
+  bubble(item.role === "user" ? "user" : "karen", item.content);
+}
+
+if (!history.length) {
+  bubble(
+    "karen",
+    "Hai sayang 💕 Tekan tombol Aktifkan AI lokal terlebih dahulu. " +
+    "Model akan diunduh sebelum kita mulai ngobrol."
+  );
+}
 </script>
 </body>
 </html>
