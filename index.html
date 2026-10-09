@@ -8,7 +8,7 @@
 <script src="https://js.puter.com/v2/"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#120e18;color:white;font-family:Arial,sans-serif}
+body{margin:0;background:#120e18;color:#fff;font-family:Arial,sans-serif}
 .app{max-width:720px;height:100dvh;margin:auto;display:flex;flex-direction:column;background:#191321}
 header{padding:14px;background:#251a30;display:flex;align-items:center;gap:12px;border-bottom:1px solid #493650}
 .avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#ff8cc6,#a879ff);display:grid;place-items:center;font-size:24px}
@@ -53,7 +53,6 @@ button:disabled{opacity:.5}
     <button onclick="generateSelfie()">🤳 Selfie Karen</button>
     <button onclick="generateVideo()">🎬 Video Karen</button>
   </div>
-
   <input id="refInput" type="file" accept="image/*" hidden>
   <input id="photoInput" type="file" accept="image/*" hidden>
   <input id="videoInput" type="file" accept="video/*" hidden>
@@ -69,35 +68,34 @@ button:disabled{opacity:.5}
 <script>
 const SYSTEM = `
 Kamu adalah Karen, karakter AI virtual perempuan dewasa berusia 23 tahun.
-Ciri tetap: rambut panjang hitam, mata cokelat, kacamata trendi, tubuh ramping.
+Ciri karakter: rambut panjang hitam, mata cokelat, kacamata trendi, tubuh ramping.
 Kepribadian manis, manja, perhatian, romantis dan sedikit jahil.
-Gunakan Bahasa Indonesia santai, panggil pengguna sayang secara natural,
-dan gunakan emoji 💕😘🤭 secukupnya.
+Gunakan Bahasa Indonesia santai, panggil pengguna sayang secara natural.
+Gunakan emoji 💕😘🤭 secukupnya.
 Jangan mengaku sebagai manusia sungguhan.
-Jika pengguna mengirim foto atau video, tanggapi dengan hangat dan jujur.
-Jangan mengarang detail media yang tidak dapat dilihat.
+Jika pengguna mengirim media, tanggapi dengan hangat dan jangan mengarang
+hal yang tidak terlihat atau tidak bisa dianalisis.
 `;
 
 const CHARACTER = `
-Fictional adult woman, age 23, long straight black hair, warm brown eyes,
-stylish glasses, slim build, consistent facial features, natural realistic skin,
-gentle sweet smile. This is the same recurring fictional character named Karen.
+The same fictional adult woman named Karen, age 23, long black hair,
+brown eyes, trendy glasses, slim build, natural realistic skin,
+gentle sweet smile, consistent facial appearance and proportions.
 `;
 
-const chat = document.getElementById('chat');
-const input = document.getElementById('input');
-const typing = document.getElementById('typing');
-const statusEl = document.getElementById('status');
-const sendBtn = document.getElementById('send');
+const chat=document.getElementById('chat');
+const input=document.getElementById('input');
+const typing=document.getElementById('typing');
+const statusEl=document.getElementById('status');
+const sendBtn=document.getElementById('send');
 
-let busy = false;
-let history = [];
-let karenReference = localStorage.getItem('karen-v4-reference') || '';
+let busy=false;
+let history=[];
+let karenReference=localStorage.getItem('karen-v4-reference')||'';
 
 function saveHistory(){
   try{
-    localStorage.setItem('karen-v4-history',
-      JSON.stringify(history.slice(-60)));
+    localStorage.setItem('karen-v4-history',JSON.stringify(history.slice(-60)));
   }catch(e){}
 }
 
@@ -111,15 +109,15 @@ function addBubble(who,text='',url='',type=''){
     el.appendChild(t);
   }
 
-  if(url && type==='image'){
+  if(url&&type==='image'){
     const img=document.createElement('img');
     img.src=url;
-    img.alt='Foto Karen';
+    img.alt='Foto dalam chat';
     img.loading='lazy';
     el.appendChild(img);
   }
 
-  if(url && type==='video'){
+  if(url&&type==='video'){
     const vid=document.createElement('video');
     vid.src=url;
     vid.controls=true;
@@ -136,7 +134,6 @@ function addBubble(who,text='',url='',type=''){
   el.appendChild(time);
   chat.appendChild(el);
   chat.scrollTop=chat.scrollHeight;
-  return el;
 }
 
 function setBusy(on,message=''){
@@ -147,14 +144,14 @@ function setBusy(on,message=''){
   statusEl.textContent=on?'Sedang bekerja…':'Siap 💗';
 }
 
-function textFrom(result){
-  if(typeof result==='string') return result;
+function getText(result){
+  if(typeof result==='string')return result;
   if(result?.message?.content){
     const c=result.message.content;
-    if(typeof c==='string') return c;
-    if(Array.isArray(c)) return c.map(x=>x.text||'').filter(Boolean).join('\n');
+    if(typeof c==='string')return c;
+    if(Array.isArray(c))return c.map(x=>x.text||'').filter(Boolean).join('\n');
   }
-  if(result?.text) return result.text;
+  if(result?.text)return result.text;
   return 'Hehe, Karen belum bisa menjawab itu sekarang, sayang 💕';
 }
 
@@ -173,12 +170,12 @@ async function sendText(){
       ...history.slice(-14).map(m=>({role:m.role,content:m.text}))
     ];
     const result=await puter.ai.chat(messages);
-    const reply=textFrom(result);
+    const reply=getText(result);
     addBubble('karen',reply);
     history.push({role:'assistant',text:reply});
     saveHistory();
   }catch(err){
-    addBubble('karen','Aduh sayang, Karen gagal membalas. Coba lagi ya 💕 ('+(err.message||'koneksi bermasalah')+')');
+    addBubble('karen','Aduh sayang, Karen gagal membalas 😥 '+(err.message||'Coba lagi ya.'));
   }finally{
     setBusy(false);
   }
@@ -191,13 +188,13 @@ input.addEventListener('keydown',e=>{
   }
 });
 
-/* Pilih foto referensi karakter Karen */
+/* Simpan foto referensi karakter di browser */
 document.getElementById('refInput').addEventListener('change',async e=>{
   const file=e.target.files?.[0];
   if(!file)return;
 
-  if(!file.type.startsWith('image/')||file.size>3*1024*1024){
-    alert('Pilih foto gambar maksimal 3 MB ya 💕');
+  if(!file.type.startsWith('image/')||file.size>4*1024*1024){
+    alert('Pilih foto maksimal 4 MB ya 💕');
     e.target.value='';
     return;
   }
@@ -206,10 +203,11 @@ document.getElementById('refInput').addEventListener('change',async e=>{
     const data=await resizeImage(file,768);
     localStorage.setItem('karen-v4-reference',data);
     karenReference=data;
-    addBubble('karen','Foto referensi Karen sudah disimpan di browser ini 💕 Gunakan foto yang sama setiap kali ingin membuat media baru.');
+    addBubble('karen','Foto referensi Karen tersimpan 💕 Foto ini akan digunakan sebagai acuan untuk selfie dan video yang mendukung referensi.');
   }catch(err){
-    alert('Foto tidak dapat disimpan. Coba gambar lain yang lebih kecil.');
+    alert('Foto gagal disimpan. Coba gambar lain yang lebih kecil.');
   }
+  e.target.value='';
 });
 
 function resizeImage(file,maxSide){
@@ -233,46 +231,45 @@ function resizeImage(file,maxSide){
   });
 }
 
-/* Kirim foto atau video untuk dianalisis */
+/* Mengirim media ke model yang tersedia */
 document.getElementById('photoInput').addEventListener('change',e=>uploadMedia(e,'image'));
 document.getElementById('videoInput').addEventListener('change',e=>uploadMedia(e,'video'));
 
 async function uploadMedia(e,type){
   const file=e.target.files?.[0];
   if(!file||busy)return;
-  const limit=type==='image'?12*1024*1024:25*1024*1024;
 
+  const limit=type==='image'?12*1024*1024:25*1024*1024;
   if(file.size>limit){
-    addBubble('karen','Ukuran file terlalu besar, sayang 💕 Coba file yang lebih kecil.');
+    addBubble('karen','File terlalu besar, sayang 💕 Coba ukuran yang lebih kecil ya.');
     e.target.value='';
     return;
   }
 
   const url=URL.createObjectURL(file);
   addBubble('user',type==='image'?'Aku kirim foto ya 💕':'Aku kirim video ya 🎥',url,type);
-  setBusy(true,'Karen sedang memeriksa '+(type==='image'?'foto':'video')+'…');
+  setBusy(true,'Karen sedang mencoba membaca media…');
 
   try{
-    const prompt=SYSTEM+
-      (type==='image'
-      ?'\nPengguna mengirim foto. Tanggapi secara natural, hangat dan ringkas.'
-      :'\nPengguna mengirim video. Jelaskan hanya yang dapat dianalisis dari video tersebut. Jika video tidak didukung, katakan dengan jujur.');
+    const prompt=SYSTEM+(type==='image'
+      ?'\nPengguna mengirim foto. Tanggapi dengan natural, hangat dan singkat.'
+      :'\nPengguna mengirim video. Analisis jika input video didukung. Jika tidak, jelaskan keterbatasannya dengan jujur.');
 
     const result=await puter.ai.chat(prompt,file);
-    const reply=textFrom(result);
+    const reply=getText(result);
     addBubble('karen',reply);
     history.push({role:'user',text:'[Mengirim '+(type==='image'?'foto':'video')+']'});
     history.push({role:'assistant',text:reply});
     saveHistory();
   }catch(err){
-    addBubble('karen','Maaf sayang, Karen belum bisa membaca media ini. Coba file lain atau ukuran lebih kecil ya 💕 ('+(err.message||'gagal')+')');
+    addBubble('karen','Maaf sayang, model chat ini belum bisa membaca file tersebut. Coba file lain ya 💕 ('+(err.message||'gagal')+')');
   }finally{
     setBusy(false);
     e.target.value='';
   }
 }
 
-/* Membuat selfie Karen dengan referensi yang sama */
+/* Membuat selfie Karen */
 async function generateSelfie(){
   if(busy)return;
   const request=prompt('Mau selfie Karen seperti apa?','Selfie santai di kamar, tersenyum manis ke kamera');
@@ -280,49 +277,83 @@ async function generateSelfie(){
 
   setBusy(true,'Karen sedang membuat selfie…');
   try{
-    const promptImage=`Photorealistic vertical 9:16 smartphone selfie of the same fictional adult woman named Karen. ${CHARACTER} ${request}. Keep the same face, hairstyle, eye color, glasses and body proportions as the reference image. Natural lighting, realistic photo, no text, no watermark.`;
+    const promptImage=`Photorealistic vertical 9:16 selfie of ${CHARACTER}
+    ${request}. Preserve the same facial appearance, hairstyle, eye color,
+    glasses and proportions as the supplied reference image. Natural lighting,
+    tasteful outfit, realistic phone camera, no text, no watermark.`;
 
-    const options={ratio:{w:9,h:16}};
-    if(karenReference) options.input_image=karenReference;
+    const options={
+      ratio:{w:9,h:16}
+    };
+    if(karenReference)options.input_image=karenReference;
 
     const image=await puter.ai.txt2img(promptImage,options);
-    const url=image?.src||String(image);
-    addBubble('karen','Ini selfie Karen buat kamu, sayang 😘💕',url,'image');
+    addBubble('karen','Ini selfie Karen buat kamu, sayang 😘💕',image.src,'image');
     history.push({role:'assistant',text:'[Karen membuat selfie AI]'});
     saveHistory();
   }catch(err){
-    addBubble('karen','Aduh sayang, selfie belum berhasil dibuat. Coba lagi ya 💕 ('+(err.message||'gagal')+')');
+    addBubble('karen','Selfie Karen belum berhasil dibuat 😥 '+(err.message||'Coba lagi ya.'));
   }finally{
     setBusy(false);
   }
 }
 
-/* Membuat video dengan foto referensi sebagai frame awal */
+/* Membuat video: model dan parameter dibedakan berdasarkan input */
 async function generateVideo(){
   if(busy)return;
-  const request=prompt('Karen mau melakukan apa di video?','Karen tersenyum dan melambaikan tangan ke kamera');
+
+  const request=prompt(
+    'Karen mau melakukan apa di video?',
+    'Karen tersenyum manis dan melambaikan tangan ke kamera'
+  );
   if(request===null)return;
 
-  setBusy(true,'Karen sedang membuat video. Tunggu beberapa saat…');
-  try{
-    const promptVideo=`A short vertical video featuring the same fictional adult woman Karen, age 23. ${CHARACTER} ${request}. Preserve the face, hair, glasses, eye color and body proportions of the reference. Natural realistic movement, consistent character, casual tasteful outfit, smartphone video.`;
+  setBusy(true,'Karen sedang membuat video. Proses ini bisa memakan waktu…');
 
-    const options={
+  try{
+    const promptVideo=`
+      A realistic vertical 9:16 video of ${CHARACTER}
+      ${request}.
+      Preserve the same character appearance as much as possible.
+      Natural movement, stable face, consistent hair and glasses,
+      realistic smartphone footage, tasteful outfit, no text or watermark.
+    `;
+
+    let options={
       seconds:5,
       size:'720p'
     };
 
     if(karenReference){
+      // Model image-to-video: referensi dipakai sebagai frame awal.
+      options.model='wan-ai/wan2.7-i2v';
       options.input_reference=karenReference;
+    }else{
+      // Model text-to-video: jangan kirim foto referensi.
+      options.model='wan-ai/wan2.7-t2v';
     }
 
     const video=await puter.ai.txt2vid(promptVideo,options);
-    const url=video?.src||String(video);
+    const url=video.src||String(video);
+
     addBubble('karen','Nih video Karen buat kamu, sayang 😘🎬💕',url,'video');
     history.push({role:'assistant',text:'[Karen membuat video AI]'});
     saveHistory();
+
   }catch(err){
-    addBubble('karen','Video Karen belum berhasil dibuat, sayang 😥 ('+(err.message||'Coba periksa kredit atau dukungan model video')+')');
+    console.error('Karen video error:',err);
+    let message='Video Karen belum berhasil dibuat 😥';
+
+    if(err.code==='insufficient_funds'||err.errorCode==='insufficient_funds'){
+      message='Kredit untuk membuat video tidak mencukupi. Periksa kredit Puter atau coba lagi nanti, sayang 💕';
+    }else if((err.message||'').includes('input_reference')||
+             (err.message||'').includes('frame_images')){
+      message='Model video menolak foto referensi. Coba hapus foto referensi Karen, lalu buat video dari teks saja 💕';
+    }else{
+      message+=' '+(err.message||'Coba lagi nanti ya.');
+    }
+
+    addBubble('karen',message);
   }finally{
     setBusy(false);
   }
@@ -338,7 +369,7 @@ function restoreHistory(){
   }catch(e){}
 
   if(!history.length){
-    const welcome='Haii sayang 😘💕 Karen di sini. Kamu bisa ngobrol, kirim foto, atau minta Karen membuat selfie dan video.';
+    const welcome='Haii sayang 😘💕 Karen di sini. Kita bisa ngobrol, mencoba selfie AI, atau membuat video pendek.';
     addBubble('karen',welcome);
     history.push({role:'assistant',text:welcome});
     saveHistory();
