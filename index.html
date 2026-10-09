@@ -15,7 +15,7 @@ header{padding:14px;background:#251a30;display:flex;align-items:center;gap:11px}
 h1{font-size:19px;margin:0 0 5px}
 .sub{font-size:12px;color:#d9b6e8}
 #status{margin-left:auto;font-size:11px;color:#a9edba;text-align:right}
-#chat{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+#chat{flex:1;min-height:0;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
 .msg{max-width:88%;padding:11px 13px;border-radius:16px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
 .karen{align-self:flex-start;background:#30243a}
 .user{align-self:flex-end;background:#a83f85}
@@ -29,6 +29,10 @@ button:disabled{opacity:.5}
 textarea{flex:1;min-width:0;min-height:44px;max-height:120px;resize:vertical;border:1px solid #594363;border-radius:17px;background:#17111e;color:white;padding:12px;font:14px Arial}
 #send{background:#e45caa;font-size:18px}
 .note{text-align:center;color:#bca8c7;font-size:11px;margin-top:8px}
+#load-info{display:none;margin-bottom:10px;font-size:12px;color:#e8c9f5;overflow-wrap:anywhere}
+#load-track{height:7px;background:#3a2946;border-radius:8px;margin-top:7px;overflow:hidden}
+#load-bar{height:100%;width:0%;background:#e45caa;transition:width .2s}
+#load-detail{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;color:#ffd2d2}
 </style>
 </head>
 <body>
@@ -45,12 +49,19 @@ textarea{flex:1;min-width:0;min-height:44px;max-height:120px;resize:vertical;bor
 <main id="chat"></main>
 
 <footer>
+  <div id="load-info" role="status" aria-live="polite">
+    <div id="load-message">Menyiapkan AI...</div>
+    <div id="load-track"><div id="load-bar"></div></div>
+    <div id="load-detail"></div>
+  </div>
+
   <div class="controls">
     <button id="load">🧠 Aktifkan AI lokal</button>
     <button id="voice">🔊 Suara: Mati</button>
     <button id="mic">🎙️ Bicara</button>
     <button id="clear">🗑️ Hapus chat</button>
   </div>
+
   <div class="composer">
     <textarea id="input" rows="1" placeholder="Chat Karen di sini, sayang..."></textarea>
     <button id="send" aria-label="Kirim">➤</button>
@@ -191,78 +202,188 @@ $("mic").onclick = () => {
     ).trim();
     input.focus();
   };
-  rec.onerror = () => status.textContent = "Mikrofon gagal";
+  rec.onerror = e => {
+    status.textContent = "Mikrofon gagal";
+    console.error("Kesalahan mikrofon:", e.error);
+  };
   rec.onend = () => {
-    if (!busy) status.textContent = model ? "AI siap" : "Belum dimuat";
+    if (!busy && !loading) {
+      status.textContent = model ? "AI siap" : "Belum dimuat";
+    }
   };
 
   try {
     rec.start();
-  } catch {
+  } catch (err) {
     status.textContent = "Coba tekan lagi";
+    console.error(err);
   }
 };
 
+function showLoadInfo(message, progress = null) {
+  $("load-info").style.display = "block";
+  $("load-message").textContent = message;
+
+  const bar = $("load-bar");
+
+  if (typeof progress === "number" && Number.isFinite(progress)) {
+    const percent = Math.max(0, Math.min(100, progress));
+    bar.style.width = percent + "%";
+    $("load-message").textContent =
+      message + " (" + Math.round(percent) + "%)";
+  } else {
+    // Status saja jika persentase sebenarnya belum tersedia.
+    bar.style.width = "25%";
+  }
+}
+
+function describeError(err) {
+  const parts = [];
+
+  if (err?.name) parts.push("Jenis: " + err.name);
+  if (err?.message) parts.push("Pesan: " + err.message);
+  else parts.push("Pesan: " + String(err));
+
+  if (err?.cause?.message) {
+    parts.push("Penyebab: " + err.cause.message);
+  }
+
+  return parts.join("\n");
+}
+
 async function loadModel() {
   if (model) return model;
+
   if (loading) {
-    throw new Error("Model masih dimuat. Tunggu sebentar ya.");
+    throw new Error("Model masih dimuat. Tunggu sampai selesai.");
   }
 
   loading = true;
   loadButton.disabled = true;
-  status.textContent = "Menyiapkan AI...";
+  sendButton.disabled = true;
   loadButton.textContent = "⏳ Memuat model...";
+  $("load-detail").textContent = "";
+
+  const onProgress = info => {
+    if (!info || typeof info !== "object") return;
+
+    const file = info.file
+      ? " • " + String(info.file).split("/").pop()
+      : "";
+
+    // Gunakan progres dari library bila tersedia.
+    let percent = null;
+
+    if (typeof info.progress === "number") {
+      percent = info.progress;
+    } else if (
+      typeof info.loaded === "number" &&
+      typeof info.total === "number" &&
+      info.total > 0
+    ) {
+      percent = info.loaded / info.total * 100;
+    }
+
+    if (info.status === "initiate") {
+      showLoadInfo("Memulai unduhan" + file);
+    } else if (info.status === "progress" || percent !== null) {
+      showLoadInfo("Mengunduh model" + file, percent);
+    } else if (info.status === "done") {
+      showLoadInfo("Selesai mengunduh" + file, 100);
+    } else if (info.status === "ready") {
+      showLoadInfo("Menyiapkan komponen AI...");
+    } else {
+      showLoadInfo(
+        "Memuat komponen AI" +
+        (info.status ? " • " + info.status : "") + file
+      );
+    }
+  };
 
   try {
+    showLoadInfo("Memeriksa dukungan browser...");
     let device = "wasm";
+    let gpuError = null;
 
     if (navigator.gpu) {
       try {
-        status.textContent = "Mencoba GPU...";
+        showLoadInfo("Mencoba menjalankan AI dengan GPU...");
         model = await pipeline("text-generation", MODEL, {
           dtype: "q4",
-          device: "webgpu"
+          device: "webgpu",
+          progress_callback: onProgress
         });
         device = "webgpu";
-      } catch (gpuError) {
-        console.warn("GPU tidak tersedia, mencoba CPU/WASM", gpuError);
+      } catch (err) {
+        gpuError = err;
+        console.error("Kesalahan GPU/WebGPU:", err);
         model = null;
+        showLoadInfo("GPU gagal. Mencoba CPU/WASM...");
       }
     }
 
     if (!model) {
-      status.textContent = "Memuat model ke browser...";
-      model = await pipeline("text-generation", MODEL, {
-        dtype: "q4",
-        device: "wasm"
-      });
+      try {
+        showLoadInfo("Memuat model menggunakan CPU/WASM...");
+        model = await pipeline("text-generation", MODEL, {
+          dtype: "q4",
+          device: "wasm",
+          progress_callback: onProgress
+        });
+      } catch (wasmError) {
+        console.error("Kesalahan CPU/WASM:", wasmError);
+
+        let detail =
+          "Gagal memuat model melalui CPU/WASM:\n" +
+          describeError(wasmError);
+
+        if (gpuError) {
+          detail += "\n\nKesalahan GPU sebelumnya:\n" +
+            describeError(gpuError);
+        }
+
+        throw new Error(detail);
+      }
     }
+
+    showLoadInfo("Model berhasil dimuat!", 100);
+    $("load-detail").textContent =
+      "Model: " + MODEL + "\nMode: " + device;
 
     status.textContent = "AI siap • " + device;
     loadButton.textContent = "✅ AI aktif";
     return model;
+
   } catch (err) {
     model = null;
     status.textContent = "Gagal memuat AI";
     loadButton.textContent = "🔄 Coba muat lagi";
+
+    showLoadInfo("Pemuatan gagal.");
+    $("load-detail").textContent = describeError(err);
+
+    console.error("Detail lengkap pemuatan model:", err);
+
     throw new Error(
-      "Model gagal dimuat. Periksa internet, ruang penyimpanan, " +
-      "dan kemampuan HP. Detail: " + (err.message || err)
+      "Karen gagal memuat model.\n\n" + describeError(err)
     );
+
   } finally {
     loading = false;
     loadButton.disabled = false;
+    sendButton.disabled = false;
   }
 }
 
 $("load").onclick = async () => {
   try {
     await loadModel();
+
     if (!history.length) {
       const welcome =
         "Hai sayang 🥰 Aku Karen. AI lokal sudah siap. " +
         "Kita ngobrol, yuk! 💕";
+
       history.push({ role: "assistant", content: welcome });
       saveHistory();
       bubble("karen", welcome);
@@ -288,6 +409,7 @@ async function send() {
     const generator = await loadModel();
 
     status.textContent = "Karen sedang berpikir...";
+
     const messages = [
       { role: "system", content: PERSONA },
       ...history.slice(-10).map(m => ({
@@ -321,10 +443,11 @@ async function send() {
     saveHistory();
     bubble("karen", reply);
     status.textContent = "AI siap";
+
   } catch (err) {
     bubble(
       "karen",
-      "Maaf sayang, AI lokal mengalami kendala. " +
+      "Maaf sayang, AI lokal mengalami kendala.\n\n" +
       (err.message || "Coba lagi ya.")
     );
     status.textContent = "Ada kendala";
@@ -345,9 +468,11 @@ input.addEventListener("keydown", e => {
 
 $("clear").onclick = () => {
   if (!confirm("Hapus seluruh riwayat chat Karen?")) return;
+
   history = [];
   saveHistory();
   chat.replaceChildren();
+
   if (model) {
     const msg = "Chat sudah dibersihkan, sayang. Kita mulai lagi 💕";
     history.push({ role: "assistant", content: msg });
