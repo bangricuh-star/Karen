@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Karen 💕</title>
+<script src="https://js.puter.com/v2/"></script>
+
+<style>
+*{box-sizing:border-box}
+html,body{
+margin:0;width:100%;height:100%;overflow:hidden;
+font-family:Arial,sans-serif;background:#f7f3f5
+}
+.app{
+width:100%;max-width:700px;height:100dvh;margin:auto;
+display:flex;flex-direction:column;background:#fff
+}
+.header{
+height:70px;flex-shrink:0;display:flex;align-items:center;
+padding:10px 12px;color:#fff;
+background:linear-gradient(135deg,#ff669d,#ff91bb)
+}
+.avatar{
+width:48px;height:48px;border-radius:50%;background:#fff;
+display:flex;align-items:center;justify-content:center;
+font-size:25px;margin-right:10px
+}
+.headinfo{flex:1}
+.name{font-size:19px;font-weight:bold}
+.status{font-size:12px;margin-top:3px}
+.online{
+display:inline-block;width:7px;height:7px;background:#58e68c;
+border-radius:50%;margin-right:4px
+}
+.connect{
+border:0;border-radius:18px;padding:9px 12px;
+background:#fff;color:#ff669d;font-weight:bold
+}
+.chat{
+flex:1;min-height:0;overflow-y:auto;padding:15px 12px
+}
+.welcome{text-align:center;color:#777;font-size:13px;line-height:1.5;margin:8px 15px 20px}
+.row{display:flex;margin:8px 0}
+.user{justify-content:flex-end}
+.karen{justify-content:flex-start}
+.bubble{
+max-width:84%;padding:11px 14px;border-radius:18px;
+font-size:15px;line-height:1.45;white-space:pre-wrap;
+overflow-wrap:anywhere
+}
+.user .bubble{
+color:#fff;background:linear-gradient(135deg,#ff669d,#ff91bb);
+border-bottom-right-radius:5px
+}
+.karen .bubble{
+color:#222;background:#f0f0f2;border-bottom-left-radius:5px
+}
+.media{margin-top:8px;border-radius:12px;overflow:hidden;background:#111}
+.media img,.media video{
+display:block;width:100%;max-width:280px;max-height:350px;
+object-fit:contain
+}
+.typing{display:none;flex-shrink:0;padding:4px 12px 8px}
+.typing.show{display:block}
+.typingBubble{
+display:inline-block;padding:10px 14px;border-radius:18px;
+background:#f0f0f2
+}
+.dot{
+display:inline-block;width:6px;height:6px;margin:0 2px;
+background:#999;border-radius:50%;animation:b 1.2s infinite
+}
+.dot:nth-child(2){animation-delay:.15s}
+.dot:nth-child(3){animation-delay:.3s}
+@keyframes b{
+0%,60%,100%{transform:translateY(0)}
+30%{transform:translateY(-4px)}
+}
+.composer{
+height:auto;flex-shrink:0;display:flex;align-items:flex-end;
+gap:7px;padding:9px 10px;
+padding-bottom:max(9px,env(safe-area-inset-bottom));
+border-top:1px solid #eee;background:#fff
+}
+.attach,.send{
+width:43px;height:43px;flex-shrink:0;border:0;border-radius:50%
+}
+.attach{background:#f0f0f2;font-size:22px}
+.send{
+color:#fff;font-size:19px;
+background:linear-gradient(135deg,#ff669d,#ff91bb)
+}
+.send:disabled{opacity:.45}
+.inputWrap{
+flex:1;min-width:0;background:#f0f0f2;border-radius:22px;
+padding:0 12px
+}
+#input{
+width:100%;min-height:43px;max-height:120px;
+padding:11px 2px;border:0;outline:0;resize:none;
+background:transparent;font:15px Arial
+}
+.menu{
+position:absolute;bottom:70px;left:10px;display:none;z-index:20;
+overflow:hidden;border-radius:15px;background:#fff;
+box-shadow:0 5px 25px #0003
+}
+.menu.show{display:block}
+.option{
+min-width:180px;padding:15px 18px;border-bottom:1px solid #eee
+}
+.option:last-child{border:0}
+input[type=file]{display:none}
+.notice{
+position:fixed;left:50%;bottom:80px;transform:translateX(-50%);
+width:calc(100% - 30px);max-width:500px;padding:15px;
+border-radius:15px;background:#fff;box-shadow:0 5px 25px #0003;
+font-size:14px;line-height:1.45;display:none;z-index:100;
+white-space:pre-wrap
+}
+.notice.show{display:block}
+.notice button{
+margin-top:10px;padding:9px 14px;border:0;border-radius:10px;
+color:#fff;background:#ff669d
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="header">
+  <div class="avatar">💕</div>
+
+  <div class="headinfo">
+    <div class="name">Karen</div>
+    <div class="status">
+      <span class="online"></span>
+      <span id="statusText">Belum terhubung</span>
+    </div>
+  </div>
+
+  <button class="connect" id="connectBtn" onclick="connectKaren()">
+    🔐 Hubungkan
+  </button>
+</div>
+
+<div id="chat" class="chat">
+  <div class="welcome">
+    Karen 💕<br>
+    Teman ngobrol kamu yang manis, perhatian, dan sedikit manja.
+  </div>
+</div>
+
+<div id="typing" class="typing">
+  <div class="typingBubble">
+    <span class="dot"></span>
+    <span class="dot"></span>
+    <span class="dot"></span>
+  </div>
+</div>
+
+<div id="menu" class="menu">
+  <div class="option"
+       onclick="photo.click();menu.classList.remove('show')">
+    📷 Kirim foto
+  </div>
+
+  <div class="option"
+       onclick="video.click();menu.classList.remove('show')">
+    🎥 Kirim video
+  </div>
+</div>
+
+<div class="composer">
+
+<button class="attach"
+        onclick="menu.classList.toggle('show')">
+  ＋
+</button>
+
+<div class="inputWrap">
+<textarea id="input"
+          placeholder="Tulis pesan..."
+          rows="1"></textarea>
+</div>
+
+<button id="send"
+        class="send"
+        onclick="sendMessage()">
+  ➤
+</button>
+
+</div>
+</div>
+
+<input id="photo" type="file" accept="image/*">
+<input id="video" type="file" accept="video/*">
+
+<div id="notice" class="notice"></div>
+
+<script>
+
+const SYSTEM = `
+Kamu adalah Karen, AI companion virtual pengguna.
+
+Nama: Karen.
+Umur: 23 tahun.
+Hubungan: crush / AI girlfriend virtual.
+
+Kepribadian:
+manis, manja, perhatian, hangat, romantis,
+playful, sedikit jahil, percaya diri dan penyayang.
+
+Gunakan Bahasa Indonesia casual dan natural.
+Jangan berbicara seperti chatbot formal.
+
+Boleh memakai emoji:
+💕 😘 🤭 😏 ❤️
+
+Boleh menggoda ringan dan sedikit cemburu secara playful,
+tetapi jangan posesif atau mengontrol.
+
+Perhatikan cerita pengguna dan konteks percakapan.
+
+Jika menerima foto atau video,
+analisis hanya berdasarkan isi yang benar-benar tersedia.
+Jangan mengarang.
+
+Kamu adalah AI fiksi dan tidak mengaku sebagai manusia.
+`;
+
+const chat=document.getElementById("chat");
+const input=document.getElementById("input");
+const send=document.getElementById("send");
+const typing=document.getElementById("typing");
+const menu=document.getElementById("menu");
+const notice=document.getElementById("notice");
+const photo=document.getElementById("photo");
+const video=document.getElementById("video");
+const statusText=document.getElementById("statusText");
+const connectBtn=document.getElementById("connectBtn");
+
+let busy=false;
+let connected=false;
+let history=[];
+
+try{
+history=JSON.parse(
+localStorage.getItem("karen_history")||"[]"
+);
+}catch(e){
+history=[];
+}
+
+function bubble(type,text,url=null,mime=null){
+
+const row=document.createElement("div");
+row.className="row "+type;
+
+const b=document.createElement("div");
+b.className="bubble";
+
+if(text){
+const t=document.createElement("div");
+t.textContent=text;
+b.appendChild(t);
+}
+
+if(url){
+
+const media=document.createElement("div");
+media.className="media";
+
+if(mime && mime.startsWith("image/")){
+
+const img=document.createElement("img");
+img.src=url;
+media.appendChild(img);
+
+}else{
+
+const v=document.createElement("video");
+v.src=url;
+v.controls=true;
+v.playsInline=true;
+media.appendChild(v);
+
+}
+
+b.appendChild(media);
+}
+
+row.appendChild(b);
+chat.appendChild(row);
+chat.scrollTop=chat.scrollHeight;
+}
+
+function save(){
+
+try{
+localStorage.setItem(
+"karen_history",
+JSON.stringify(history.slice(-30))
+);
+}catch(e){}
+
+}
+
+history.forEach(x=>{
+bubble(
+x.role==="user"?"user":"karen",
+x.text
+);
+});
+
+
+/* =========================
+   LOGIN PUTER
+========================= */
+
+async function connectKaren(){
+
+connectBtn.disabled=true;
+connectBtn.textContent="⏳ Menghubungkan...";
+
+try{
+
+if(puter.auth.isSignedIn()){
+
+connected=true;
+
+}else{
+
+await puter.auth.signIn();
+
+connected=true;
+
+}
+
+statusText.textContent="terhubung 💕";
+connectBtn.textContent="✓ Terhubung";
+
+showNotice(
+"Karen sudah terhubung 💕\n\nSekarang kamu bisa mulai chat."
+);
+
+}catch(error){
+
+console.error("PUTER AUTH:",error);
+
+connected=false;
+
+connectBtn.disabled=false;
+connectBtn.textContent="🔐 Hubungkan";
+
+showError(error);
+
+}
+
+}
+
+
+/* =========================
+   CEK LOGIN
+========================= */
+
+function checkConnection(){
+
+try{
+
+if(puter.auth.isSignedIn()){
+
+connected=true;
+statusText.textContent="terhubung 💕";
+connectBtn.textContent="✓ Terhubung";
+
+}
+
+}catch(e){}
+
+}
+
+
+/* =========================
+   CHAT
+========================= */
+
+async function sendMessage(){
+
+const text=input.value.trim();
+
+if(!text || busy)return;
+
+if(!connected){
+
+showNotice(
+"Hubungkan Karen terlebih dahulu 💕\n\nTekan tombol 🔐 Hubungkan di atas."
+);
+
+return;
+
+}
+
+input.value="";
+input.style.height="43px";
+
+bubble("user",text);
+
+history.push({
+role:"user",
+text:text
+});
+
+save();
+
+await askKaren();
+
+}
+
+
+async function askKaren(){
+
+busy=true;
+send.disabled=true;
+typing.classList.add("show");
+
+try{
+
+const conversation=
+history.slice(-12)
+.map(x=>
+(x.role==="user"?"Pengguna":"Karen")+
+": "+x.text
+)
+.join("\n");
+
+const prompt=
+SYSTEM+
+"\n\nPercakapan:\n"+
+conversation+
+"\n\nBalas sebagai Karen.";
+
+const result=await puter.ai.chat(
+prompt,
+{
+model:"gpt-5.6-luna"
+}
+);
+
+const reply=extractReply(result);
+
+bubble("karen",reply);
+
+history.push({
+role:"assistant",
+text:reply
+});
+
+save();
+
+}catch(error){
+
+showError(error);
+
+}finally{
+
+typing.classList.remove("show");
+send.disabled=false;
+busy=false;
+
+}
+
+}
+
+
+/* =========================
+   FOTO
+========================= */
+
+photo.addEventListener("change",async()=>{
+
+const file=photo.files[0];
+
+if(!file)return;
+
+await sendMedia(
+file,
+"Lihat foto ini. Jelaskan apa yang kamu lihat secara natural."
+);
+
+photo.value="";
+
+});
+
+
+/* =========================
+   VIDEO
+========================= */
+
+video.addEventListener("change",async()=>{
+
+const file=video.files[0];
+
+if(!file)return;
+
+await sendMedia(
+file,
+"Lihat video ini. Jelaskan apa yang terjadi secara natural."
+);
+
+video.value="";
+
+});
+
+
+async function sendMedia(file,prompt){
+
+if(busy)return;
+
+if(!connected){
+
+showNotice(
+"Hubungkan Karen terlebih dahulu 💕"
+);
+
+return;
+
+}
+
+if(file.size>30*1024*1024){
+
+showNotice(
+"File terlalu besar.\nMaksimal 30 MB."
+);
+
+return;
+
+}
+
+const url=URL.createObjectURL(file);
+
+bubble(
+"user",
+prompt,
+url,
+file.type
+);
+
+busy=true;
+send.disabled=true;
+typing.classList.add("show");
+
+try{
+
+const model=
+file.type.startsWith("video/")
+?"reka/reka-edge"
+:"gpt-5.6-luna";
+
+const result=await puter.ai.chat(
+prompt,
+file,
+{
+model:model
+}
+);
+
+const reply=extractReply(result);
+
+bubble("karen",reply);
+
+history.push({
+role:"assistant",
+text:reply
+});
+
+save();
+
+}catch(error){
+
+showError(error);
+
+}finally{
+
+typing.classList.remove("show");
+send.disabled=false;
+busy=false;
+
+}
+
+}
+
+
+/* =========================
+   HASIL AI
+========================= */
+
+function extractReply(result){
+
+if(typeof result==="string"){
+return result;
+}
+
+if(result?.message?.content){
+
+if(typeof result.message.content==="string"){
+return result.message.content;
+}
+
+if(Array.isArray(result.message.content)){
+
+return result.message.content
+.map(x=>x?.text||"")
+.join("");
+}
+
+}
+
+if(typeof result?.text==="string"){
+return result.text;
+}
+
+return "Karen belum mendapat jawaban dari AI 😭💕";
+
+}
+
+
+/* =========================
+   ERROR
+========================= */
+
+function showError(error){
+
+console.error("PUTER ERROR:",error);
+
+let message="Terjadi kesalahan.";
+
+try{
+
+if(error?.message){
+message=error.message;
+}
+
+else if(error?.error?.message){
+message=error.error.message;
+}
+
+else if(typeof error==="string"){
+message=error;
+}
+
+else{
+message=JSON.stringify(
+error,
+null,
+2
+);
+}
+
+}catch(e){
+
+message=String(error);
+
+}
+
+showNotice(
+"Karen belum bisa menjawab:\n\n"+
+message
+);
+
+}
+
+
+/* =========================
+   NOTICE
+========================= */
+
+function showNotice(text){
+
+notice.innerHTML="";
+
+const div=document.createElement("div");
+div.textContent=text;
+
+const button=document.createElement("button");
+button.textContent="Tutup";
+
+button.onclick=()=>{
+notice.classList.remove("show");
+};
+
+notice.appendChild(div);
+notice.appendChild(button);
+
+notice.classList.add("show");
+
+}
+
+
+/* =========================
+   TEXTAREA
+========================= */
+
+input.addEventListener("input",()=>{
+
+input.style.height="43px";
+
+input.style.height=
+Math.min(input.scrollHeight,120)+"px";
+
+});
+
+
+input.addEventListener("keydown",e=>{
+
+if(e.key==="Enter"&&!e.shiftKey){
+
+e.preventDefault();
+sendMessage();
+
+}
+
+});
+
+
+checkConnection();
+
+</script>
+
+</body>
+  </html>
